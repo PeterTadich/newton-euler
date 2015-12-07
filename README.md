@@ -79,7 +79,7 @@ for(var k=0;k<pos_j1.length;k=k+1){
     t = pos_j1[k][0];
     trq_j1.push([t,trq[0][0]]);
     trq_j2.push([t,trq[1][0]]);
-    console.log("torques: T1 = " + trq[0][0].toFixed(4) + ", T2 = " + trq[0][0].toFixed(4));
+    console.log("torques: T1 = " + trq[0][0].toFixed(4) + ", T2 = " + trq[1][0].toFixed(4));
 }
 ```
 

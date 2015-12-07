@@ -201,6 +201,7 @@ function linkAccelerationsCF(v,vd,vdd){
     var v1dd = vdd[0]; //rad.s^-2. Joint acceleration.
     var v2dd = vdd[1]; //rad.s^-2
     
+    //dynamic parameters
     var a1 = 1.0; //m
     var a2 = 1.0; //m
     var l1 = 0.5; //m
@@ -228,16 +229,21 @@ function linkAccelerationsCF(v,vd,vdd){
     var qd  = [[0.0], [v1d], [v2d]]; //two joints -  qd[0][0] is dummy data
     var qdd = [[0.0],[v1dd],[v2dd]]; //two joints - qdd[0][0] is dummy data
     
+    //required for forward recursion
+    var R = []; //coordinate transform from Frame {i} --> Frame {i-1}
+    var vd = []; var vdd = []; //row vectors (index 0 'undefined')
+    var z = [];
+    var r = []; //an array of column vectors (index 0 'undefined')
+    var rc = []; //an array of column vectors (index 0 'undefined')
+    var kr = []; //row vectors (index 0 'undefined')
+    var zm = []; //an array of column vectors (index 0 'undefined')
+    
+    //required and populated by forward recursion
+    //initial condition required for forward recursion excluding 'pcdd'
     var w = []; var wd = []; var wmd = [];
     var pdd = []; var pcdd = [];
-    var R = []; //coordinate transform from Frame {i} --> Frame {i-1}
-    var vd = []; var vdd = [];
-    var z = [];
-    var r = [];
-    var rc = [];
-    var kr = [];
-    var zm = [];
     
+    //initial condition
     w[0] = [[0.0],[0.0],[0.0]];
     wd[0] = [[0.0],[0.0],[0.0]];
     
@@ -251,7 +257,8 @@ function linkAccelerationsCF(v,vd,vdd){
     pdd[0] = [[0.0],[g],[0.0]];
     kr[1] = kr1; kr[2] = kr2;
     
-    // Li = [ai, alpha_i, di, vi]
+    //calculation of rotation matrix in link frame
+    //Li = [ai, alpha_i, di, vi]
     var Li = [
         [a1, 0.0, 0.0, v1],
         [a2, 0.0, 0.0, v2]
@@ -286,7 +293,7 @@ function linkAccelerationsCF(v,vd,vdd){
         ];
     }
     
-    //initialize
+    //initialize 'zm'
     for(var i=1;i<=n;i=i+1){ //i = 1,...,n
         zm[i] = z[0]; //zmi,i-1 (axis of rotation of rotors) coincide with z[0] (joint axis), page 289. zmi = zi-1 see page 266.
     }
