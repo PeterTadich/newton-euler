@@ -32,19 +32,18 @@ function NewtonEulerRecursion(){
 // FORWARD RECURSION
 // Link Accelerations, REF: Robotics Modelling, Planning and Control, Page 285
 //    - ref. Base Frame
-/*
 function linkAccelerationsBF(){
     //i = 1,...,n
     
     //qd
     //qdd
     
-    var w = [];
-    var wd = [];
+    var w = []; //defined in inertial frame
+    var wd = []; //defined in inertial frame
     var pd = [];
     var pdd = [];
     var pddc = [];
-    var wdm = [];
+    var wdm = []; //defined in inertial frame
     var vd = [];
     var z = [];
     var r = [];
@@ -56,21 +55,23 @@ function linkAccelerationsBF(){
     //revolute joint:
     
     //   - link 'i':
-    //      - angular velocity
+    //      - angular velocity of {i} (frame 'i')
     w[i] = hlao.matrix_arithmetic(
                 w[i-1],
                 hlao.matrix_multiplication_scalar(
-                    z[i-1],
+                    z[i-1], //unit vector of joint 'i' axis (defined in inertial frame (hence maynot be the world z-axis))
                     vd[i]
                 ),
                 '+'
             ); //equ. (7.93)
     //      - linear velocity
+    /*
     pd[i] = hlao.matrix_arithmetic(
                 pd[i-1],
                 hlao.vector_cross(w[i],r[i]),
                 '+'
             ); //equ. (7.94)
+    */
     //      - angular acceleration
     wd[i] = hlao.matrix_arithmetic(
                 hlao.matrix_arithmetic(
@@ -103,7 +104,7 @@ function linkAccelerationsBF(){
     ////                ) + 
     ////            hlao.vector_cross(w[i],hlao.matrix_multiplication_scalar(z[i-1],dd[i])) +
     ////            hlao.vector_cross(w[i],hlao.vector_cross(w[i],r[i])); //equ. (7.97)
-    
+    /*
     //      - linear acceleration
 	pdd[i] = hlao.matrix_arithmetic(
                 hlao.matrix_arithmetic(
@@ -139,8 +140,8 @@ function linkAccelerationsBF(){
                     ),
                     '+'
                 ); //equ. (7.103)
+    */
 }
-*/
 
 // BACKWARD RECURSION
 // Link forces, REF: Robotics Modelling, Planning and Control, Page 287
@@ -304,7 +305,8 @@ function linkAccelerationsCF(v,vd,vdd){
         
         //   - angular velocity
         w[i] = hlao.matrix_multiplication(hlao.matrix_transpose(R[i]),hlao.matrix_arithmetic(w[i-1],hlao.matrix_multiplication_scalar(z[0],vd[i]),'+')); //equ. (7.107)
-        //console.log(w[i]);
+        console.log('Angular velocity:');
+        console.log(w[i]);
         
         //   - angular acceleration
         wd[i] = hlao.matrix_multiplication(
@@ -314,7 +316,8 @@ function linkAccelerationsCF(v,vd,vdd){
                       hlao.vector_cross(hlao.matrix_multiplication_scalar(w[i-1],vd[i]),z[0]),
                    '+')
                 ); //equ. (7.108)
-        //console.log(wd[i]);
+        console.log('Angular acceleration:');
+        console.log(wd[i]);
         
         //   - linear acceleration, link
         pdd[i] = hlao.matrix_arithmetic(
