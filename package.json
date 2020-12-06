@@ -1,0 +1,22 @@
+{
+  "name": "newton-euler",
+  "version": "1.0.0",
+  "description": "Newton-Euler formulation",
+  "main": "mcnef.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PeterTadich/newton-euler.git"
+  },
+  "author": "Peter Tadich",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PeterTadich/newton-euler/issues"
+  },
+  "homepage": "https://github.com/PeterTadich/newton-euler#readme",
+  "dependencies": {
+    "matrix-computations": "git+https://github.com/PeterTadich/matrix-computations.git"
+  }
+}
