@@ -350,7 +350,7 @@ function linkAccelerationsCF(v,vd,vdd){
     m[0] = 0.0; /*dummy*/ m[1] = m1; m[2] = m2;
 
     //coordinate transforms between Frame {i+1} and Frame {i}
-    R[n+1] = identity_matrix(3);
+    R[n+1] = hlao.identity_matrix(3);
     
     //forces:
     f[n+1] = [[0.0],[0.0],[0.0]];
