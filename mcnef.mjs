@@ -304,7 +304,7 @@ function linkAccelerationsCF(v,vd,vdd){
                    hlao.matrix_transpose(R[i]),
                    hlao.matrix_arithmetic(
                       hlao.matrix_arithmetic(wd[i-1],hlao.matrix_multiplication_scalar(z[0],vdd[i]),'+'), 
-                      vector_cross(hlao.matrix_multiplication_scalar(w[i-1],vd[i]),z[0]),
+                      hlao.vector_cross(hlao.matrix_multiplication_scalar(w[i-1],vd[i]),z[0]),
                    '+')
                 ); //equ. (7.108)
         //console.log(wd[i]);
@@ -313,9 +313,9 @@ function linkAccelerationsCF(v,vd,vdd){
         pdd[i] = hlao.matrix_arithmetic(
                     hlao.matrix_arithmetic(
                        hlao.matrix_multiplication(hlao.matrix_transpose(R[i]),pdd[i-1]),
-                       vector_cross(wd[i],r[i]),
+                       hlao.vector_cross(wd[i],r[i]),
                     '+'),
-                     vector_cross(w[i],vector_cross(w[i],r[i])),
+                     hlao.vector_cross(w[i],hlao.vector_cross(w[i],r[i])),
                  '+'); //equ. (7.109)
         //console.log(pdd[i]);
         
@@ -323,9 +323,9 @@ function linkAccelerationsCF(v,vd,vdd){
         pcdd[i] = hlao.matrix_arithmetic(
                      hlao.matrix_arithmetic(
                         pdd[i],
-                        vector_cross(wd[i],rc[i]),
+                        hlao.vector_cross(wd[i],rc[i]),
                      '+'),
-                     vector_cross(w[i],vector_cross(w[i],rc[i])),
+                     hlao.vector_cross(w[i],hlao.vector_cross(w[i],rc[i])),
                   '+'); //equ. (7.110)
         //console.log(pcdd[i]);
         
@@ -335,7 +335,7 @@ function linkAccelerationsCF(v,vd,vdd){
                        wd[i-1],
                        hlao.matrix_multiplication_scalar(zm[i],(kr[i]*qdd[i][0])),
                     '+'),
-                    vector_cross(hlao.matrix_multiplication_scalar(w[i-1],(kr[i]*qd[i][0])),zm[i]),
+                    hlao.vector_cross(hlao.matrix_multiplication_scalar(w[i-1],(kr[i]*qd[i][0])),zm[i]),
                  '+'); //equ. (7.111)
         //console.log(wmd[i]);
     }
@@ -394,15 +394,15 @@ function linkAccelerationsCF(v,vd,vdd){
         //NEED TO FIX - not working correctly
         //   - check zm[] is in the right reference frame
         u[i] = hlao.matrix_arithmetic(
-                  hlao.matrix_multiplication_scalar(vector_cross(f[i],hlao.matrix_arithmetic(r[i],rc[i],'+')),-1.0),
+                  hlao.matrix_multiplication_scalar(hlao.vector_cross(f[i],hlao.matrix_arithmetic(r[i],rc[i],'+')),-1.0),
                   hlao.matrix_arithmetic(
                      hlao.matrix_arithmetic(hlao.matrix_multiplication(R[i+1],u[i+1]), 
-                        vector_cross(hlao.matrix_multiplication(R[i+1],f[i+1]),rc[i]),'+'),
+                        hlao.vector_cross(hlao.matrix_multiplication(R[i+1],f[i+1]),rc[i]),'+'),
                      hlao.matrix_arithmetic(
                         hlao.matrix_arithmetic(hlao.matrix_multiplication(I[i],wd[i]),
-                           vector_cross(w[i],hlao.matrix_multiplication(I[i],w[i])),'+'),
+                           hlao.vector_cross(w[i],hlao.matrix_multiplication(I[i],w[i])),'+'),
                         hlao.matrix_arithmetic(hlao.matrix_multiplication_scalar(zm[i+1],kr[i+1]*qdd[i+1][0]*Im[i+1]),
-                           vector_cross(hlao.matrix_multiplication_scalar(w[i],kr[i+1]*qd[i+1][0]*Im[i+1]),zm[i+1]),'+'),
+                           hlao.vector_cross(hlao.matrix_multiplication_scalar(w[i],kr[i+1]*qd[i+1][0]*Im[i+1]),zm[i+1]),'+'),
                       '+'),
                    '+'),
                 '+'); //equ. (7.113)
