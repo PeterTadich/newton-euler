@@ -229,7 +229,7 @@ function linkAccelerationsCF(v,vd,vdd){
     var qdd = [[0.0],[v1dd],[v2dd]]; //two joints - qdd[0][0] is dummy data
     
     var w = []; var wd = []; var wmd = [];
-    var pdd = []; pcdd = [];
+    var pdd = []; var pcdd = [];
     var R = []; //coordinate transform from Frame {i} --> Frame {i-1}
     var vd = []; var vdd = [];
     var z = [];
