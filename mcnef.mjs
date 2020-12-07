@@ -297,7 +297,7 @@ function linkAccelerationsCF(v,vd,vdd){
         
         //   - angular velocity
         w[i] = hlao.matrix_multiplication(hlao.matrix_transpose(R[i]),hlao.matrix_arithmetic(w[i-1],hlao.matrix_multiplication_scalar(z[0],vd[i]),'+')); //equ. (7.107)
-        console.log(w[i]);
+        //console.log(w[i]);
         
         //   - angular acceleration
         wd[i] = hlao.matrix_multiplication(
@@ -388,7 +388,7 @@ function linkAccelerationsCF(v,vd,vdd){
                   hlao.matrix_multiplication(R[i+1],f[i+1]),
                   hlao.matrix_multiplication_scalar(pcdd[i],m[i]),
                '+'); //equ. (7.112)
-        console.log(f[i]);
+        //console.log(f[i]);
         
         //   - u
         //NEED TO FIX - not working correctly
@@ -406,14 +406,14 @@ function linkAccelerationsCF(v,vd,vdd){
                       '+'),
                    '+'),
                 '+'); //equ. (7.113)
-        console.log(u[i]);
+        //console.log(u[i]);
         
         //   - torque
         T[i] = hlao.vector_dot(hlao.matrix_multiplication(hlao.matrix_transpose(u[i]),hlao.matrix_transpose(R[i])),z[0]) +
                hlao.vector_dot(hlao.vector_transpose(wmd[i]),zm[i])*kr[i]*Im[i]; //equ. (7.114)
         //T[i] = matrix_transpose(u[i])*matrix_transpose(R[i])*z[0] + kr[i]*Im[i]*matrix_transpose(wmd[i])*zm(i) +
         //           Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.114)
-        console.log(T[i]);
+        //console.log(T[i]);
     }
     
     return [[T[1]],[T[2]]];
@@ -563,8 +563,8 @@ function twoLinkplanarArmNE(v,vd,vdd){
              (I2zz+m2*(Math.pow((lc2+a2),2)+a1*(lc2+a2)*c2)+kr2*Im2)*v2dd-2.0*m2*a1*(lc2+a2)*s2*v1d*v2d-m2*a1*(lc2+a2)*s2*Math.pow(v2d,2)+
              (m1*(lc1+a1)+m2*a1)*g*c1+m2*(lc2+a2)*g*c12;
     //console.log([[f11],[u11],[T1]]);
-    console.log(f11,f22);
-    console.log(u11,u22);
+    //console.log(f11,f22);
+    //console.log(u11,u22);
     
     return [[T1],[T2]];
 }
