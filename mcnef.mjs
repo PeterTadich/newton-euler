@@ -296,12 +296,12 @@ function linkAccelerationsCF(v,vd,vdd){
         //revolute joint:
         
         //   - angular velocity
-        w[i] = hlao.matrix_multiplication(matrix_transpose(R[i]),hlao.matrix_arithmetic(w[i-1],hlao.matrix_multiplication_scalar(z[0],vd[i]),'+')); //equ. (7.107)
+        w[i] = hlao.matrix_multiplication(hlao.matrix_transpose(R[i]),hlao.matrix_arithmetic(w[i-1],hlao.matrix_multiplication_scalar(z[0],vd[i]),'+')); //equ. (7.107)
         console.log(w[i]);
         
         //   - angular acceleration
         wd[i] = hlao.matrix_multiplication(
-                   matrix_transpose(R[i]),
+                   hlao.matrix_transpose(R[i]),
                    hlao.matrix_arithmetic(
                       hlao.matrix_arithmetic(wd[i-1],hlao.matrix_multiplication_scalar(z[0],vdd[i]),'+'), 
                       vector_cross(hlao.matrix_multiplication_scalar(w[i-1],vd[i]),z[0]),
@@ -312,7 +312,7 @@ function linkAccelerationsCF(v,vd,vdd){
         //   - linear acceleration, link
         pdd[i] = hlao.matrix_arithmetic(
                     hlao.matrix_arithmetic(
-                       hlao.matrix_multiplication(matrix_transpose(R[i]),pdd[i-1]),
+                       hlao.matrix_multiplication(hlao.matrix_transpose(R[i]),pdd[i-1]),
                        vector_cross(wd[i],r[i]),
                     '+'),
                      vector_cross(w[i],vector_cross(w[i],r[i])),
@@ -409,8 +409,8 @@ function linkAccelerationsCF(v,vd,vdd){
         console.log(u[i]);
         
         //   - torque
-        T[i] = vector_dot(hlao.matrix_multiplication(matrix_transpose(u[i]),matrix_transpose(R[i])),z[0]) +
-               vector_dot(vector_transpose(wmd[i]),zm[i])*kr[i]*Im[i]; //equ. (7.114)
+        T[i] = hlao.vector_dot(hlao.matrix_multiplication(hlao.matrix_transpose(u[i]),hlao.matrix_transpose(R[i])),z[0]) +
+               hlao.vector_dot(hlao.vector_transpose(wmd[i]),zm[i])*kr[i]*Im[i]; //equ. (7.114)
         //T[i] = matrix_transpose(u[i])*matrix_transpose(R[i])*z[0] + kr[i]*Im[i]*matrix_transpose(wmd[i])*zm(i) +
         //           Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.114)
         console.log(T[i]);
