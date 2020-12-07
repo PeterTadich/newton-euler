@@ -17,17 +17,27 @@ function NewtonEulerRecursion(){
     //   - wd[0],       angular acceleration
     
     //forward recursion: compute the link velocities and accelerations
-    linkAccelerations();
+    /*
+    linkAccelerationsBF(); //base frame
+    linkAccelerationsCF(); //current frame
+    */
     
     //backward recursion: compute the forces and moments acting on each link
-
+    /*
+    linkForcesBF(); //base frame
+    linkForcesCF(); //current frame
+    */
 }
 
 // FORWARD RECURSION
 // Link Accelerations, REF: Robotics Modelling, Planning and Control, Page 285
 //    - ref. Base Frame
+/*
 function linkAccelerationsBF(){
     //i = 1,...,n
+    
+    //qd
+    //qdd
     
     var w = [];
     var wd = [];
@@ -38,6 +48,8 @@ function linkAccelerationsBF(){
     var vd = [];
     var z = [];
     var r = [];
+    var dd = [];
+    var ddd = [];
     
     w[0] = 0.0;
     
@@ -45,25 +57,95 @@ function linkAccelerationsBF(){
     
     //   - link 'i':
     //      - angular velocity
-    w[i] = w[i-1] + vd[i]*z[i-1]; //equ. (7.93)
+    w[i] = hlao.matrix_arithmetic(
+                w[i-1],
+                hlao.matrix_multiplication_scalar(
+                    z[i-1],
+                    vd[i]
+                ),
+                '+'
+            ); //equ. (7.93)
     //      - linear velocity
-    pd[i] = pd[i-1] + matrix_multiplication(w[i],r[i]); //equ. (7.94)
+    pd[i] = hlao.matrix_arithmetic(
+                pd[i-1],
+                hlao.vector_cross(w[i],r[i]),
+                '+'
+            ); //equ. (7.94)
     //      - angular acceleration
-    wd[i] = wd[i-1] + vdd[i]*z[i-1] + vd[i]*matrix_multiplication(w[i-1],z[i-1]); //equ. (7.96)
+    wd[i] = hlao.matrix_arithmetic(
+                hlao.matrix_arithmetic(
+                    wd[i-1],
+                    hlao.matrix_multiplication_scalar(
+                        vdd[i],
+                        z[i-1]
+                    )
+                    '+'
+                ),
+                hlao.matrix_multiplication_scalar(
+                    hlao.vector_cross(
+                        w[i-1],
+                        z[i-1]
+                    ),
+                    vd[i]
+                )
+            ); //equ. (7.96)
     //      - linear acceleration
-    pdd[i] = pdd[i-1] + matrix_multiplication(wd[i],r[i]) + matrix_multiplication(w[i],matrix_multiplication(w[i],r[i])); //equ. (7.96)
+    ////pdd[i] = 
+    ////            pdd[i-1] + 
+    ////            hlao.matrix_multiplication_scalar(z[i-1],ddd[i]) +
+    ////            hlao.matrix_multiplication_scalar(w[i-1],dd[i]) +
+    ////            hlao.vector_cross(
+    ////                    hlao.matrix_multiplication(
+    ////                        wd[i],
+    ////                        r[i]
+    ////                    ),
+    ////                    z[i-1]
+    ////                ) + 
+    ////            hlao.vector_cross(w[i],hlao.matrix_multiplication_scalar(z[i-1],dd[i])) +
+    ////            hlao.vector_cross(w[i],hlao.vector_cross(w[i],r[i])); //equ. (7.97)
+    
+    //      - linear acceleration
+	pdd[i] = hlao.matrix_arithmetic(
+                hlao.matrix_arithmetic(
+                    pdd[i-1],
+                    hlao.vector_cross(wd[i],r[i]),
+                    '+'
+                ),
+                hlao.vector_cross(w[i],hlao.vector_cross(w[i],r[i])),
+                '+'
+            ); //equ. (7.99)
     
     //   - centre of mass of link 'i':
     //      - linear acceleration
-    pddc[i] = pdd[i] + matrix_multiplication(wd[i],rc[i]) + matrix_multiplication(w[i],rc[i]); //equ. (7.102)
+    pddc[i] = hlao.matrix_arithmetic(
+                    hlao.matrix_arithmetic(
+                        pdd[i],
+                        hlao.vector_cross(wd[i],rc[i]),
+                        '+'
+                    ),
+                    hlao.vector_cross(w[i],hlao.vector_cross(w[i],rc[i])),
+                    '+'
+                ); //equ. (7.102)
     //      - angular acceleration of the rotor
-    wdm[i] = wd[i-1] + kr[i]*qdd[i]*zm[i] + matrix_multiplication(kr[i]*qd[i]*w[i-1],zm[i]); //equ. (7.103)
-    
+    wdm[i] = hlao.matrix_arithmetic(
+                    hlao.matrix_arithmetic(
+                        wd[i-1],
+                        hlao.matrix_multiplication_scalar(zm[i],kr[i]*qdd[i]),
+                        '+'
+                    ),
+                    hlao.vector_cross(
+                        hlao.matrix_multiplication_scalar(w[i-1],kr[i]*qd[i]),
+                        zm[i]
+                    ),
+                    '+'
+                ); //equ. (7.103)
 }
+*/
 
 // BACKWARD RECURSION
 // Link forces, REF: Robotics Modelling, Planning and Control, Page 287
 //    - ref. Base Frame
+/*
 function linkForcesBF(){
     //i = n,...,1
     
@@ -72,13 +154,14 @@ function linkForcesBF(){
     var T = [];
     
     //revolute joint:
-    f[i] = f[i+1] + matrix_multiplication(m[i],pcdd[i]); //equ. (7.104)
-    u[i] = -1.0*matrix_multiplication(f[i],(r[i]+rc[i])) + u[i+1] + matrix_multiplication(f[i+1],rc[i]) + I[i]*wd[i] +
-               matrix_multiplication(w[i],(I[i]*w[i])) + kr[i+1]*qdd[i+1]*Im[i+1]*zm[i+1] +
-               matrix_multiplication(kr[i+1]*qd[i+1]*Im[i+1]*w[i],zm[i+1]); //equ. (7.105)
+    f[i] = f[i+1] + hlao.matrix_multiplication(m[i],pcdd[i]); //equ. (7.104)
+    u[i] = -1.0*hlao.matrix_multiplication(f[i],(r[i]+rc[i])) + u[i+1] + hlao.matrix_multiplication(f[i+1],rc[i]) + I[i]*wd[i] +
+               hlao.matrix_multiplication(w[i],(I[i]*w[i])) + kr[i+1]*qdd[i+1]*Im[i+1]*zm[i+1] +
+               hlao.matrix_multiplication(kr[i+1]*qd[i+1]*Im[i+1]*w[i],zm[i+1]); //equ. (7.105)
     T[i] = matrix_transpose(u[i])*z[i-1] + kr[i]*Im[i]*matrix_transpose(wmd[i])*zm[i] +
                Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.106)
 }
+*/
 
 // FORWARD RECURSION
 // Link Accelerations, REF: Robotics Modelling, Planning and Control, Page 287
@@ -193,7 +276,7 @@ function linkAccelerationsCF(v,vd,vdd){
             [      0.0,                  0.0,                      0.0,         1.0]
         ];
         
-        var Ai_ineg1 = matrix_multiplication(Aip,Ai);
+        var Ai_ineg1 = hlao.matrix_multiplication(Aip,Ai);
         
         //rotation matrix
         R[i] = [
@@ -213,23 +296,23 @@ function linkAccelerationsCF(v,vd,vdd){
         //revolute joint:
         
         //   - angular velocity
-        w[i] = matrix_multiplication(matrix_transpose(R[i]),matrix_arithmetic(w[i-1],matrix_multiplication_scalar(z[0],vd[i]),'+')); //equ. (7.107)
+        w[i] = hlao.matrix_multiplication(matrix_transpose(R[i]),hlao.matrix_arithmetic(w[i-1],hlao.matrix_multiplication_scalar(z[0],vd[i]),'+')); //equ. (7.107)
         console.log(w[i]);
         
         //   - angular acceleration
-        wd[i] = matrix_multiplication(
+        wd[i] = hlao.matrix_multiplication(
                    matrix_transpose(R[i]),
-                   matrix_arithmetic(
-                      matrix_arithmetic(wd[i-1],matrix_multiplication_scalar(z[0],vdd[i]),'+'), 
-                      vector_cross(matrix_multiplication_scalar(w[i-1],vd[i]),z[0]),
+                   hlao.matrix_arithmetic(
+                      hlao.matrix_arithmetic(wd[i-1],hlao.matrix_multiplication_scalar(z[0],vdd[i]),'+'), 
+                      vector_cross(hlao.matrix_multiplication_scalar(w[i-1],vd[i]),z[0]),
                    '+')
                 ); //equ. (7.108)
         //console.log(wd[i]);
         
         //   - linear acceleration, link
-        pdd[i] = matrix_arithmetic(
-                    matrix_arithmetic(
-                       matrix_multiplication(matrix_transpose(R[i]),pdd[i-1]),
+        pdd[i] = hlao.matrix_arithmetic(
+                    hlao.matrix_arithmetic(
+                       hlao.matrix_multiplication(matrix_transpose(R[i]),pdd[i-1]),
                        vector_cross(wd[i],r[i]),
                     '+'),
                      vector_cross(w[i],vector_cross(w[i],r[i])),
@@ -237,8 +320,8 @@ function linkAccelerationsCF(v,vd,vdd){
         //console.log(pdd[i]);
         
         //   - linear acceleration, centre of mass of link 'i'
-        pcdd[i] = matrix_arithmetic(
-                     matrix_arithmetic(
+        pcdd[i] = hlao.matrix_arithmetic(
+                     hlao.matrix_arithmetic(
                         pdd[i],
                         vector_cross(wd[i],rc[i]),
                      '+'),
@@ -247,12 +330,12 @@ function linkAccelerationsCF(v,vd,vdd){
         //console.log(pcdd[i]);
         
         //   - angular acceleration of the rotor
-        wmd[i] = matrix_arithmetic(
-                    matrix_arithmetic(
+        wmd[i] = hlao.matrix_arithmetic(
+                    hlao.matrix_arithmetic(
                        wd[i-1],
-                       matrix_multiplication_scalar(zm[i],(kr[i]*qdd[i][0])),
+                       hlao.matrix_multiplication_scalar(zm[i],(kr[i]*qdd[i][0])),
                     '+'),
-                    vector_cross(matrix_multiplication_scalar(w[i-1],(kr[i]*qd[i][0])),zm[i]),
+                    vector_cross(hlao.matrix_multiplication_scalar(w[i-1],(kr[i]*qd[i][0])),zm[i]),
                  '+'); //equ. (7.111)
         //console.log(wmd[i]);
     }
@@ -301,32 +384,32 @@ function linkAccelerationsCF(v,vd,vdd){
         //revolute joint:
         
         //   - force
-        f[i] = matrix_arithmetic(
-                  matrix_multiplication(R[i+1],f[i+1]),
-                  matrix_multiplication_scalar(pcdd[i],m[i]),
+        f[i] = hlao.matrix_arithmetic(
+                  hlao.matrix_multiplication(R[i+1],f[i+1]),
+                  hlao.matrix_multiplication_scalar(pcdd[i],m[i]),
                '+'); //equ. (7.112)
         console.log(f[i]);
         
         //   - u
         //NEED TO FIX - not working correctly
         //   - check zm[] is in the right reference frame
-        u[i] = matrix_arithmetic(
-                  matrix_multiplication_scalar(vector_cross(f[i],matrix_arithmetic(r[i],rc[i],'+')),-1.0),
-                  matrix_arithmetic(
-                     matrix_arithmetic(matrix_multiplication(R[i+1],u[i+1]), 
-                        vector_cross(matrix_multiplication(R[i+1],f[i+1]),rc[i]),'+'),
-                     matrix_arithmetic(
-                        matrix_arithmetic(matrix_multiplication(I[i],wd[i]),
-                           vector_cross(w[i],matrix_multiplication(I[i],w[i])),'+'),
-                        matrix_arithmetic(matrix_multiplication_scalar(zm[i+1],kr[i+1]*qdd[i+1][0]*Im[i+1]),
-                           vector_cross(matrix_multiplication_scalar(w[i],kr[i+1]*qd[i+1][0]*Im[i+1]),zm[i+1]),'+'),
+        u[i] = hlao.matrix_arithmetic(
+                  hlao.matrix_multiplication_scalar(vector_cross(f[i],hlao.matrix_arithmetic(r[i],rc[i],'+')),-1.0),
+                  hlao.matrix_arithmetic(
+                     hlao.matrix_arithmetic(hlao.matrix_multiplication(R[i+1],u[i+1]), 
+                        vector_cross(hlao.matrix_multiplication(R[i+1],f[i+1]),rc[i]),'+'),
+                     hlao.matrix_arithmetic(
+                        hlao.matrix_arithmetic(hlao.matrix_multiplication(I[i],wd[i]),
+                           vector_cross(w[i],hlao.matrix_multiplication(I[i],w[i])),'+'),
+                        hlao.matrix_arithmetic(hlao.matrix_multiplication_scalar(zm[i+1],kr[i+1]*qdd[i+1][0]*Im[i+1]),
+                           vector_cross(hlao.matrix_multiplication_scalar(w[i],kr[i+1]*qd[i+1][0]*Im[i+1]),zm[i+1]),'+'),
                       '+'),
                    '+'),
                 '+'); //equ. (7.113)
         console.log(u[i]);
         
         //   - torque
-        T[i] = vector_dot(matrix_multiplication(matrix_transpose(u[i]),matrix_transpose(R[i])),z[0]) +
+        T[i] = vector_dot(hlao.matrix_multiplication(matrix_transpose(u[i]),matrix_transpose(R[i])),z[0]) +
                vector_dot(vector_transpose(wmd[i]),zm[i])*kr[i]*Im[i]; //equ. (7.114)
         //T[i] = matrix_transpose(u[i])*matrix_transpose(R[i])*z[0] + kr[i]*Im[i]*matrix_transpose(wmd[i])*zm(i) +
         //           Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.114)
@@ -339,6 +422,7 @@ function linkAccelerationsCF(v,vd,vdd){
 // BACKWARD RECURSION
 // Link forces, REF: Robotics Modelling, Planning and Control, Page 288
 //    - ref. Current Frame
+/*
 function linkForcesCF(){
     var f = [];
     var u = [];
@@ -352,18 +436,20 @@ function linkForcesCF(){
         f[i] = R[i+1]*f[i+1] + m[i]*pcdd[i]; //equ. (7.112)
         
         //   - u
-        u[i] = -1.0*matrix_multiplication(f[i],(r[i]+rc[i])) + R[i+1]*u[i+1] + matrix_multiplication(R[i+1]*f[i+1],rc[i]) +
-                   I[i]*wd[i] + matrix_multiplication(w[i],(I[i]*w[i])) +
-                   matrix_multiplication(w[i],(I[i]*w[i])) + kr[i+1]*qdd[i+1]*Im[i+1]*zm[i+1] +
-                   matrix_multiplication(kr[i+1]*qd[i+1]*Im[i+1]*w[i],zm[i+1]); //equ. (7.113)
+        u[i] = -1.0*hlao.matrix_multiplication(f[i],(r[i]+rc[i])) + R[i+1]*u[i+1] + hlao.matrix_multiplication(R[i+1]*f[i+1],rc[i]) +
+                   I[i]*wd[i] + hlao.matrix_multiplication(w[i],(I[i]*w[i])) +
+                   hlao.matrix_multiplication(w[i],(I[i]*w[i])) + kr[i+1]*qdd[i+1]*Im[i+1]*zm[i+1] +
+                   hlao.matrix_multiplication(kr[i+1]*qd[i+1]*Im[i+1]*w[i],zm[i+1]); //equ. (7.113)
         
         //   - torque
         T[i] = matrix_transpose(u[i])*matrix_transpose(R[i])*z[0] + kr[i]*Im[i]*matrix_transpose(wmd[i])*zm(i) +
                    Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.114)
     }
 }
+*/
 
 // Example 7.5.3, REF: Robotics Modelling, Planning and Control, Page 289
+// Newton-Euler formulation
 function twoLinkplanarArmNE(v,vd,vdd){
     //var v1 = -1.0*Math.PI/2.0; //rad
     //var v2 = Math.PI; //rad
@@ -608,7 +694,7 @@ function twoLinkplanarArm_parameterization(){
     ];
 
     //Relation 7.81
-    var T = matrix_multiplication(Y,pi);
+    var T = hlao.matrix_multiplication(Y,pi);
     console.log(T);
     //T = [
     //    3861.3
@@ -618,10 +704,10 @@ function twoLinkplanarArm_parameterization(){
 
 export {
     NewtonEulerRecursion,
-    linkAccelerationsBF,
-    linkForcesBF,
+    //linkAccelerationsBF,
+    //linkForcesBF,
     linkAccelerationsCF,
-    linkForcesCF,
+    //linkForcesCF,
     twoLinkplanarArmNE,
     twoLinkplanarArmLF,
     twoLinkplanarArm_parameterization
