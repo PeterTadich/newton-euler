@@ -14,7 +14,7 @@
 import * as hlao from 'matrix-computations';
 
 // Recursion Algorithm, REF: Robotics Modelling, Planning and Control, Page 286
-function NewtonEulerRecursion(){
+function NewtonEulerRecursion(v,vd_in,vdd_in,mua,rf){
     //input:
     //   - q,           positions
     //   - qd,          velocities
@@ -23,17 +23,20 @@ function NewtonEulerRecursion(){
     //   - pdd[0] - g0, linear acceleration
     //   - wd[0],       angular acceleration
     
+    var torques;
+    
+    //if(rf.includes("BF")) console.log("Calc's are defined in the base frame.");
+    //if(rf.includes("CF")) console.log("Calc's are defined in the current frame.");
+    
     //forward recursion: compute the link velocities and accelerations
-    /*
-    linkAccelerationsBF(); //base frame
-    linkAccelerationsCF(); //current frame
-    */
+    if(rf.includes("BF")) linkAccelerationsBF(v,vd_in,vdd_in,mua); //base frame
+    if(rf.includes("CF")) linkAccelerationsCF(mua); //current frame
     
     //backward recursion: compute the forces and moments acting on each link
-    /*
-    linkForcesBF(); //base frame
-    linkForcesCF(); //current frame
-    */
+    if(rf.includes("BF")) torques = linkForcesBF(mua); //base frame
+    if(rf.includes("CF")) torques = linkForcesCF(mua); //current frame
+    
+    return torques
 }
 
 // FORWARD RECURSION
