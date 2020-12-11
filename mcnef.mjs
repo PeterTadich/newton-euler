@@ -163,10 +163,19 @@ function linkAccelerationsBF(mua){
     }
     
     //r[], rc[] form link frame to base frame
+    var R0 = [];
+    R0[0] = hlao.identity_matrix(3);
     for(var i=1;i<=n;i=i+1){
-        var R0 = hlao.matrix_multiplication(R[i-1],R[i]);
-        r[i] = hlao.matrix_multiplication(R0,r[i]);
-        rc[i] = hlao.matrix_multiplication(R0,rc[i]);
+        //var R0 = hlao.matrix_multiplication(R[i-1],R[i]);
+        //r[i] = hlao.matrix_multiplication(R0,r[i]);
+        //rc[i] = hlao.matrix_multiplication(R0,rc[i]);
+        //z[i] = hlao.matrix_multiplication(R0,z[i]);
+        //zm[i] = hlao.matrix_multiplication(R0,zm[i]);
+        R0[i] = hlao.matrix_multiplication(R0[i-1],R[i]);
+        r[i] = hlao.matrix_multiplication(R0[i],r[i]);
+        rc[i] = hlao.matrix_multiplication(R0[i],rc[i]);
+        z[i] = hlao.matrix_multiplication(R0[i],z[i]);
+        zm[i] = hlao.matrix_multiplication(R0[i],zm[i]);
     }
     
     for(var i=1;i<=n;i=i+1){
@@ -332,10 +341,21 @@ function linkForcesBF(mua){
     }
     
     //r[], rc[] form link frame to base frame
+    var R0 = [];
+    R0[0] = hlao.identity_matrix(3);
     for(var i=1;i<=n;i=i+1){
-        var R0 = hlao.matrix_multiplication(R[i-1],R[i]);
-        r[i] = hlao.matrix_multiplication(R0,r[i]);
-        rc[i] = hlao.matrix_multiplication(R0,rc[i]);
+        //var R0 = hlao.matrix_multiplication(R[i-1],R[i]);
+        //r[i] = hlao.matrix_multiplication(R0,r[i]);
+        //rc[i] = hlao.matrix_multiplication(R0,rc[i]);
+        //z[i] = hlao.matrix_multiplication(R0,z[i]);
+        //zm[i] = hlao.matrix_multiplication(R0,zm[i]);
+        //I[i] = hlao.matrix_multiplication(hlao.matrix_multiplication(R0,I[i]),hlao.matrix_transpose(R0));
+        R0[i] = hlao.matrix_multiplication(R0[i-1],R[i]);
+        r[i] = hlao.matrix_multiplication(R0[i],r[i]);
+        rc[i] = hlao.matrix_multiplication(R0[i],rc[i]);
+        z[i] = hlao.matrix_multiplication(R0[i],z[i]);
+        zm[i] = hlao.matrix_multiplication(R0[i],zm[i]);
+        I[i] = hlao.matrix_multiplication(hlao.matrix_multiplication(R0[i],I[i]),hlao.matrix_transpose(R0[i]));
     }
     
     //initial condition of the end-effector
@@ -349,6 +369,8 @@ function linkForcesBF(mua){
         
         //   - f (force)
         f[i] = hlao.matrix_arithmetic(f[i+1],hlao.matrix_multiplication_scalar(pcdd[i],m[i]),'+'); //equ. (7.104)
+        //console.log('force:');
+        //console.log(f[i]);
         
         //   - u (Euler equation)
         u[i] = hlao.matrix_arithmetic(
@@ -377,12 +399,16 @@ function linkForcesBF(mua){
                             ),
                             '+'
                         ); //equ. (7.105) continued
+        //console.log('Euler equation:');
+        //console.log(u[i]);
         
         //   - T (torque)
         T[i] = hlao.vector_dot(hlao.vector_transpose(u[i]),z[i-1]); //equ. (7.106)
         if(BSiciliano) T[i] = T[i] + kr[i]*Im[i]*hlao.vector_dot(hlao.vector_transpose(wrd[i]),zm[i]); //equ. (7.106) continued
         //if(BSiciliano) T[i] = T[i] + Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.106) continued
         if(PCorke) T[i] = T[i] + qdd[i][0]*kr[i]*kr[i]*Im[i]; //PCorke (check this - is it qdd[i] or qdd[i+1])
+        //console.log('Torque:');
+        //console.log(T[i]);
     }
     
     return T;
@@ -801,6 +827,7 @@ function linkForcesCF(mua){
         if(PCorke) T[i] = T[i] + qdd[i][0]*kr[i]*kr[i]*Im[i]; //PCorke (check this - is it qdd[i] or qdd[i+1])
         //T[i] = matrix_transpose(u[i])*matrix_transpose(R[i])*z[0] + kr[i]*Im[i]*matrix_transpose(wrd[i])*zm(i) +
         //           Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.114)
+        //console.log('Torque:')
         //console.log(T[i]);
     }
     
