@@ -36,23 +36,23 @@ function NewtonEulerRecursion(v,vd_in,vdd_in,mua,rf){
     if(rf.includes("BF")) torques = linkForcesBF(mua); //base frame
     if(rf.includes("CF")) torques = linkForcesCF(mua); //current frame
     
-    return torques
+    return torques;
 }
 
 // FORWARD RECURSION
 // Link Accelerations, REF: Robotics Modelling, Planning and Control, Page 285
 //    - ref. Base Frame
-function linkAccelerationsBF(v,vd_in,vdd_in,mua){
+function linkAccelerationsBF(mua){
     //i = 1,...,n
     
     //constants
-    var g = 9.81; //ref: page 289.
-    var kr1 = 100.0; //Gear reduction ratio.
-    var kr2 = 100.0;
-    var a1 = 1.0; //m
-    var a2 = 1.0; //m
-    var l1 = 0.5; //m
-    var l2 = 0.5; //m
+    //var g = 9.81; //ref: page 289.
+    //var kr1 = 100.0; //Gear reduction ratio.
+    //var kr2 = 100.0;
+    //var a1 = 1.0; //m
+    //var a2 = 1.0; //m
+    //var l1 = 0.5; //m
+    //var l2 = 0.5; //m
     
     //qd
     //qdd
@@ -76,48 +76,64 @@ function linkAccelerationsBF(v,vd_in,vdd_in,mua){
     
     //IMPORTANT: needs to be changed
     z[0] = [[0.0],[0.0],[1.0]]; //frame {0} defined in inertial frame
-    z[1] = [[0.0],[0.0],[1.0]]; //frame {1} defined in inertial frame
-    zm[1] = [[0.0],[0.0],[1.0]]; //frame {1} defined in inertial frame
-    zm[2] = [[0.0],[0.0],[1.0]]; //frame {2} defined in inertial frame
+    //z[1] = [[0.0],[0.0],[1.0]]; //frame {1} defined in inertial frame
+    //zm[1] = [[0.0],[0.0],[1.0]]; //frame {1} defined in inertial frame
+    //zm[2] = [[0.0],[0.0],[1.0]]; //frame {2} defined in inertial frame
     
-    kr[1] = kr1; kr[2] = kr2;
+    //kr[1] = kr1; kr[2] = kr2;
     
-    r[1] = [[a1],[0.0],[0.0]];
-    r[2] = [[a2],[0.0],[0.0]];
+    //r[1] = [[a1],[0.0],[0.0]];
+    //r[2] = [[a2],[0.0],[0.0]];
     
-    var lc1 = l1-a1;
-    var lc2 = l2-a2;
+    //var lc1 = l1-a1;
+    //var lc2 = l2-a2;
     
-    rc[1] = [[lc1],[0.0],[0.0]];
-    rc[2] = [[lc2],[0.0],[0.0]];
+    //rc[1] = [[lc1],[0.0],[0.0]];
+    //rc[2] = [[lc2],[0.0],[0.0]];
     
     //initial condition
     //   - angular velocity, acceleration of {0} <-- frame 0 attached to link 0 (fixed to ground)
     w[0] = [[0.0],[0.0],[0.0]];
     wd[0] = [[0.0],[0.0],[0.0]];
     //   - linear acceleration
-    pdd[0] = [[0.0],[g],[0.0]];
+    pdd[0] = [[0.0],[mua.g],[0.0]];
     //   - rotation matrix
     R[0] = hlao.identity_matrix(3);
     
     //joint angular position, velocity and acceleration
-    var v1 = v[0]; //rad. Joint position.
-    var v2 = v[1]; //rad
-    var v1d = vd_in[0]; //rad/s. Joint velocity.
-    var v2d = vd_in[1]; //rad/s
-    var v1dd = vdd_in[0]; //rad.s^-2. Joint acceleration.
-    var v2dd = vdd_in[1]; //rad.s^-2
+    //var v1 = v[0]; //rad. Joint position.
+    //var v2 = v[1]; //rad
+    //var v1d = vd_in[0]; //rad/s. Joint velocity.
+    //var v2d = vd_in[1]; //rad/s
+    //var v1dd = vdd_in[0]; //rad.s^-2. Joint acceleration.
+    //var v2dd = vdd_in[1]; //rad.s^-2
     
-    vd[1] = v1d; vd[2] = v2d;
-    vdd[1] = v1dd; vdd[2] = v2dd;
+    //vd[1] = v1d; vd[2] = v2d;
+    //vdd[1] = v1dd; vdd[2] = v2dd;
     
     //q[], qd[], qdd[]
-    var qd  = [[0.0], [v1d], [v2d]]; //two joints -  qd[0][0] is dummy data
-    var qdd = [[0.0],[v1dd],[v2dd]]; //two joints - qdd[0][0] is dummy data
+    //var qd  = [[0.0], [v1d], [v2d]]; //two joints -  qd[0][0] is dummy data
+    //var qdd = [[0.0],[v1dd],[v2dd]]; //two joints - qdd[0][0] is dummy data
+    var qd  = [[0.0]]; //two joints -  qd[0][0] is dummy data
+    var qdd = [[0.0]]; //two joints - qdd[0][0] is dummy data
     
     var Li = mua.DH;
     
     var n = Li.length; //number of links
+    
+    for(var i=1;i<=n;i=i+1){
+        //row vectors
+        r[i] = mua.r[i-1];
+        rc[i] = mua.rc[i-1];
+        vd[i] = mua.vd[i-1];
+        vdd[i] = mua.vdd[i-1];
+        kr[i] = mua.kr[i-1];
+        //column vectors
+        qd.push([mua.vd[i-1]]);
+        qdd.push([mua.vdd[i-1]]);
+        zm[i] = z[0]; //zmi,i-1 (axis of rotation of rotors) coincide with z[0] (joint axis), page 289. zmi = zi-1 see page 266.
+        z[i] = z[0];
+    }
     
     for(var i=1;i<=n;i=i+1){ //coordinate transforms between Frame {i} and Frame {i-1}
         //homogeneous transformation matrix:
@@ -297,7 +313,7 @@ function linkForcesBF(mua){
     
     //initialize
     z[0] = [[0.0],[0.0],[1.0]];
-    z[1] = [[0.0],[0.0],[1.0]];
+    //z[1] = [[0.0],[0.0],[1.0]];
     
     for(var i=1;i<=n;i=i+1){
         //row vectors
@@ -312,6 +328,7 @@ function linkForcesBF(mua){
         qd.push([mua.vd[i-1]]);
         qdd.push([mua.vdd[i-1]]);
         zm[i] = z[0]; //zmi,i-1 (axis of rotation of rotors) coincide with z[0] (joint axis), page 289. zmi = zi-1 see page 266.
+        z[i] = z[0];
     }
     
     //r[], rc[] form link frame to base frame
