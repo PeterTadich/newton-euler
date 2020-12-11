@@ -7,9 +7,9 @@
 //To do:
 //   - check calc of I1zz
 //   - motor inertia 7.113, 7.114. BSiciliano is different to PCorke.
-//   - joint viscous and Coulomb friction 7.114
-//   -  allow for generalised forces (f[n+1], u[n+1]) at the end-effector
-//   - torque calc //PCorke (check this - is it qdd[i] or qdd[i+1])
+//   - apply joint viscous and Coulomb friction 7.114
+//   - allow for generalised forces (f[n+1], u[n+1]) at the end-effector
+//   - torque calc @ PCorke (check this - is it qdd[i] or qdd[i+1])
 
 import * as hlao from 'matrix-computations';
 
