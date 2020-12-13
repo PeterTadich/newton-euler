@@ -95,12 +95,16 @@ function linkAccelerationsBF(mua){
     
     //initial condition
     //   - angular velocity, acceleration of {0} <-- frame 0 attached to link 0 (fixed to ground)
-    w[0] = [[0.0],[0.0],[0.0]];
-    wd[0] = [[0.0],[0.0],[0.0]];
+    //w[0] = [[0.0],[0.0],[0.0]];
+    //wd[0] = [[0.0],[0.0],[0.0]];
+    w[0] = mua.w[0];
+    wd[0] = mua.wd[0];
     //   - linear acceleration
-    pdd[0] = [[0.0],[mua.g],[0.0]];
+    //pdd[0] = [[0.0],[mua.g],[0.0]];
+    pdd[0] = hlao.matrix_arithmetic(mua.pdd[0],mua.g,'-'); //page 286 Siciliano
     //   - rotation matrix
-    R[0] = hlao.identity_matrix(3);
+    //R[0] = hlao.identity_matrix(3);
+    R[0] = mua.R[0];
     
     //joint angular position, velocity and acceleration
     //var v1 = v[0]; //rad. Joint position.
@@ -167,7 +171,8 @@ function linkAccelerationsBF(mua){
     
     //r[], rc[] form link frame to base frame
     var R0 = [];
-    R0[0] = hlao.identity_matrix(3);
+    //R0[0] = hlao.identity_matrix(3);
+    R0[0] = mua.R[0];
     for(var i=1;i<=n;i=i+1){
         //var R0 = hlao.matrix_multiplication(R[i-1],R[i]);
         //r[i] = hlao.matrix_multiplication(R0,r[i]);
@@ -387,7 +392,8 @@ function linkForcesBF(mua){
     
     //r[], rc[] form link frame to base frame
     var R0 = [];
-    R0[0] = hlao.identity_matrix(3);
+    //R0[0] = hlao.identity_matrix(3);
+    R0[0] = mua.R[0];
     for(var i=1;i<=n;i=i+1){
         //var R0 = hlao.matrix_multiplication(R[i-1],R[i]);
         //r[i] = hlao.matrix_multiplication(R0,r[i]);
@@ -555,10 +561,19 @@ function linkAccelerationsCF(mua){
     z[0] = [[0.0],[0.0],[1.0]];
     
     //initial condition
-    w[0] = [[0.0],[0.0],[0.0]];
-    wd[0] = [[0.0],[0.0],[0.0]];
+    //   - angular velocity, acceleration
+    //w[0] = [[0.0],[0.0],[0.0]];
+    //wd[0] = [[0.0],[0.0],[0.0]];
+    w[0] = mua.w[0];
+    wd[0] = mua.wd[0];
+    //   - linear acceleration
     //pdd[0] = [[0.0],[g],[0.0]];
-    pdd[0] = [[0.0],[mua.g],[0.0]];
+    //pdd[0] = [[0.0],[mua.g],[0.0]];
+    pdd[0] = hlao.matrix_arithmetic(mua.pdd[0],mua.g,'-'); //page 286 Siciliano
+    
+    //   - rotation matrix
+    //R[0] = hlao.identity_matrix(3);
+    R[0] = mua.R[0];
     
     //vd[1] = v1d; vd[2] = v2d;
     //vdd[1] = v1dd; vdd[2] = v2dd;
