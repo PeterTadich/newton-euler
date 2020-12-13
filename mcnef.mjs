@@ -280,7 +280,7 @@ function linkAccelerationsBF(mua){
                             '+'
                         ),
                         hlao.matrix_arithmetic(
-                            hlao.vector_cross(wd[i],r[i])
+                            hlao.vector_cross(wd[i],r[i]),
                             hlao.vector_cross(w[i],hlao.vector_cross(w[i],r[i])),
                             '+'
                         ),
