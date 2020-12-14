@@ -459,7 +459,7 @@ function linkForcesBF(mua){
         if(jt[i].includes('P')) T[i] = hlao.vector_dot(hlao.vector_transpose(f[i]),z[i-1]); //equ. (7.106)
         if(BSiciliano) T[i] = T[i] + kr[i]*Im[i]*hlao.vector_dot(hlao.vector_transpose(wrd[i]),zm[i]); //equ. (7.106) continued
         //if(BSiciliano) T[i] = T[i] + Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.106) continued
-        if(PCorke) T[i] = T[i] + qdd[i][0]*kr[i]*kr[i]*Im[i]; //PCorke (check this - is it qdd[i] or qdd[i+1])
+        if(PCorke) T[i] = T[i] + qdd[i][0]*kr[i]*kr[i]*Im[i] - friction((i-1),qd[i],mua); //PCorke (check this - is it qdd[i] or qdd[i+1])
         //console.log('Torque:');
         //console.log(T[i]);
     }
@@ -922,7 +922,7 @@ function linkForcesCF(mua){
         //      - prismatic
         if(jt[i].includes('P')) T[i] = hlao.vector_dot(hlao.matrix_multiplication(hlao.matrix_transpose(f[i]),hlao.matrix_transpose(R[i])),z[0]); //equ. (7.114)
         if(BSiciliano) T[i] = T[i] + hlao.vector_dot(hlao.vector_transpose(wrd[i]),zm[i])*kr[i]*Im[i]; //equ. (7.114) continued (BSiciliano)
-        if(PCorke) T[i] = T[i] + qdd[i][0]*kr[i]*kr[i]*Im[i]; //PCorke (check this - is it qdd[i] or qdd[i+1])
+        if(PCorke) T[i] = T[i] + qdd[i][0]*kr[i]*kr[i]*Im[i] - friction((i-1),qd[i],mua); //PCorke (check this - is it qdd[i] or qdd[i+1])
         //T[i] = matrix_transpose(u[i])*matrix_transpose(R[i])*z[0] + kr[i]*Im[i]*matrix_transpose(wrd[i])*zm(i) +
         //           Fv[i]*vd[i] + Fs[i]*sgn(vd[i]); //equ. (7.114)
         //console.log('Torque:')
@@ -1186,6 +1186,17 @@ function twoLinkplanarArm_parameterization(){
     //]
 }
 
+//joint friction (viscous and Coulomb) (P Corke)
+function friction(i,qd,mua){
+    //   - ref: Link.m
+    var B = mua.Bm[i]; var G = mua.kr[i]; var Tc = mua.Tc[i];
+    var tau = B * Math.abs(G) * qd;
+    if(qd > 0) tau = tau + Tc[0];
+    if(qd < 0) tau = tau + Tc[1];
+    tau = -1.0*Math.abs(G) * tau; // friction opposes motion
+    return tau;
+}
+
 export {
     NewtonEulerRecursion,
     linkAccelerationsBF,
@@ -1194,5 +1205,6 @@ export {
     linkForcesCF,
     twoLinkplanarArmNE,
     twoLinkplanarArmLF,
-    twoLinkplanarArm_parameterization
+    twoLinkplanarArm_parameterization,
+    friction
 };
